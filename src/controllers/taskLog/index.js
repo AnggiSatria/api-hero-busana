@@ -4,19 +4,19 @@ const prisma = require("../../lib/prisma");
 const createTaskLogSchema = z.object({
     taskId: z.string().min(1, "TaskId harus diisi"),
     message: z.string().min(10, "Message harus minimal 10 karakter"),
-    createBy: z.string().min(1, "CreateBy harus diisi"),
+    createdBy: z.string().min(1, "createdBy harus diisi"),
 })
 
 exports.createTaskLog = async (req, res) => {
     try {
         createTaskLogSchema.parse(req.body);
-        const { taskId, message, createBy } = req.body;
+        const { taskId, message, createdBy } = req.body;
 
-        const newTask = await prisma.task.create({
+        const newTask = await prisma.taskLog.create({
             data: {
                 taskId,
                 message,
-                createBy,
+                createdBy,
             },
         });
 
@@ -26,14 +26,14 @@ exports.createTaskLog = async (req, res) => {
         });
 
     } catch (error) {
+       console.error("CREATE TASK LOG ERROR:", error);
+        
         if (error && error.errors && Array.isArray(error.errors)) {
             return res.status(400).json({
                 status: "validation_error",
                 errors: error.errors.map((err) => ({
                     field: err.path?.join("."),
                     message: err.message,
-                    expected: err.expected ?? undefined,
-                    received: err.received ?? undefined,
                 })),
             });
         }
@@ -110,13 +110,13 @@ exports.updateTaskLog = async (req, res) => {
   try {
     const { id } = req.params;
     createTaskLogSchema.parse(req.body);
-    const { taskId, message, createBy } = req.body;
+    const { taskId, message, createdBy } = req.body;
     const updatedTaskLog = await prisma.taskLog.update({
       where: { id },
       data: {
         taskId,
         message,
-        createBy,
+        createdBy,
         },
     });
 
