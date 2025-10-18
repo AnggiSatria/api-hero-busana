@@ -59,13 +59,13 @@ exports.register = async (req, res) => {
   } catch (error) {    
     if (error && error.errors && Array.isArray(error.errors)) {
         return res.status(400).json({
-        status: "validation_error",
-        errors: error.errors.map((err) => ({
-            field: err.path?.join("."),
-            message: err.message,
-            expected: err.expected ?? undefined,
-            received: err.received ?? undefined,
-        })),
+          status: "validation_error",
+          errors: error.errors.map((err) => ({
+              field: err.path?.join("."),
+              message: err.message,
+              expected: err.expected ?? undefined,
+              received: err.received ?? undefined,
+          })),
         });
     }
 
