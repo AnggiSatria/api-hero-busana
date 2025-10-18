@@ -1,0 +1,63 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // pakai URL dari Neon
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  fullName      String
+  email         String   @unique
+  password      String
+  role          UserRole @default(USER)  // ✅ tambahkan role
+  token         String?
+  refreshToken  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tasks         Task[]
+
+  @@map("users")
+}
+
+model Task {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  createdAt     DateTime    @default(now())
+  startDate     DateTime?
+  endDate       DateTime?
+  status        TaskStatus  @default(BELUM_DIMULAI)
+  assignedTo    String?     // nama anggota tim (bisa juga nanti diganti jadi relasi ke User kalau mau)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  logs          TaskLog[]
+
+  @@map("tasks")
+}
+
+model TaskLog {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  message     String
+  createdAt   DateTime @default(now())
+  createdBy   String?
+
+  @@map("task_logs")
+}
+
+
+enum TaskStatus {
+  BELUM_DIMULAI
+  SEDANG_DIKERJAKAN
+  SELESAI
+}
+
+enum UserRole {
+  ADMIN          // Project Manager
+  USER           // Anggota tim biasa
+}
