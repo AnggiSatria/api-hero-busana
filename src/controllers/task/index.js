@@ -7,14 +7,14 @@ const createTaskSchema = z.object({
   startDate: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "Start date tidak valid" }),
   endDate: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "End date tidak valid" }),
   status: z.enum(["BELUM_DIMULAI", "SEDANG_DIKERJAKAN","SELESAI"]),
-  assignTo: z.string().min(1, "AssignTo harus diisi"),
+  assignedTo: z.string().min(1, "assignedTo harus diisi"),
   userId: z.string().min(1, "UserId harus diisi"),
 })
 
 exports.createTask = async (req, res) => {
     try {
         createTaskSchema.parse(req.body);
-        const { title, description, startDate, endDate, status, assignTo, userId } = req.body;
+        const { title, description, startDate, endDate, status, assignedTo, userId } = req.body;
 
         const newTask = await prisma.task.create({
             data: {
@@ -23,7 +23,7 @@ exports.createTask = async (req, res) => {
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 status,
-                assignTo,
+                assignedTo,
                 userId,
             },
         });
@@ -34,6 +34,7 @@ exports.createTask = async (req, res) => {
         });
 
     } catch (error) {
+        
         if (error && error.errors && Array.isArray(error.errors)) {
             return res.status(400).json({
                 status: "validation_error",
@@ -155,7 +156,7 @@ exports.updateTask = async (req, res) => {
     const { id } = req.params;
     try {
         createTaskSchema.parse(req.body);
-        const { title, description, startDate, endDate, status, assignTo, userId } = req.body;
+        const { title, description, startDate, endDate, status, assignedTo, userId } = req.body;
         const updatedTask = await prisma.task.update({
             where: { id },
             data: {
@@ -164,7 +165,7 @@ exports.updateTask = async (req, res) => {
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 status,
-                assignTo,
+                assignedTo,
                 userId,
             },
         });
